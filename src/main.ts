@@ -1,3 +1,3 @@
-import VirtualMachine from './vm';
+import Chip8 from './chip8';
 
-const vm = new VirtualMachine();
+const vm = new Chip8();

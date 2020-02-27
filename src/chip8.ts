@@ -1,36 +1,53 @@
-export default class CPU {
+export default class Chip8 {
+    // RAM
+    private ram: Int8Array = new Int8Array(4096);
     // Stack array
-    stack: Int16Array = new Int16Array(16);
+    private stack: Int16Array = new Int16Array(16);
     // GP Registers (V0 - VF)
-    v: Int8Array = new Int8Array(16);
+    private v: Int8Array = new Int8Array(16);
     // Address register (16-bit)
-    i: number = 0;
+    private i: number = 0;
     // Delay Timer (8-bit)
-    dt: number = 0;
+    private dt: number = 0;
     // Sound Timer (8-bit)
-    st: number = 0;
+    private st: number = 0;
     // Program Counter (16-bit)
-    pc: number = 0;
+    private pc: number = 0x200;
     // Stack pointer (8-bit)
-    sp: number = 0;
+    private sp: number = 0;
+
+    /**
+     * Emulates a CPU cycle
+     */
+    public cycle() {
+        // Read 2-byte opcode from memory
+        const opcode = this.getOpcode();
+
+        // Decode and advance Program Counter
+        this.decode(opcode);
+        this.pc += 2;
+
+        // TODO: Update timers
+    }
 
     /**
      * Decodes and executes the given opcode.
      * @param opcode 2-byte operation
      */
-    decode(opcode: number): void {
-        // Opcode's main parts
-        const key: number = (opcode & 0xF000) >> 12;
-        const val: number = (opcode & 0x0FFF);
+    private decode(opcode: number): void {
+        // TODO: Make a separate Decoder class
 
-        // TODO: MUST READ THE NEXT BYTE TOO!
-        // Aux variables
-        let n1: number;
-        let n2: number;
+        // Opcode bitfields
+        const u   = (opcode >> 12) & 0xF;
+        const x   = (opcode >>  8) & 0xF;
+        const y   = (opcode >>  4) & 0xF;
+        const p   = (opcode >>  0) & 0xF;
+        const kk  = (opcode >>  0) & 0xFF;
+        const nnn = (opcode >>  0) & 0xFFF;
 
-        switch(key) {
+        switch(x) {
             case 0x0:
-                switch(val) {
+                switch(nnn) {
                     // Clear screen
                     case 0x0E0:
                         break;
@@ -55,15 +72,6 @@ export default class CPU {
                 this.pc = val;
                 break;
 
-            case 0x3:
-                break;
-
-            case 0x4:
-                break;
-
-            case 0x5:
-                break;
-
             // 6XNN -> Vx = NN
             case 0x6:
                 n1 = val & 0xF00 >> 8;
@@ -77,32 +85,14 @@ export default class CPU {
                 n2 = val & 0x0FF;
                 this.v[n1] += n2;
                 break;
-
-            case 0x8:
-                
-                break;
-
-            case 0x9:
-                break;
-
-            case 0xA:
-                break;
-
-            case 0xB:
-                break;
-
-            case 0xC:
-                break;
-
-            case 0xD:
-                break;
-
-            case 0xE:
-                break;
-
-            case 0xF:
-                break;
         }
+    }
+
+    /**
+     * Returns the current 2-byte opcode
+     */
+    private getOpcode() {
+        return this.ram[this.pc & 0xFFF] << 8 | this.ram[(this.pc + 1) & 0xFFF];
     }
 
 }
