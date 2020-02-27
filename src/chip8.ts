@@ -44,48 +44,6 @@ export default class Chip8 {
         const p   = (opcode >>  0) & 0xF;
         const kk  = (opcode >>  0) & 0xFF;
         const nnn = (opcode >>  0) & 0xFFF;
-
-        switch(x) {
-            case 0x0:
-                switch(nnn) {
-                    // Clear screen
-                    case 0x0E0:
-                        break;
-                    // Return from subroutine
-                    case 0x0EE:
-                        this.pc = this.stack[this.sp--];
-                        break;
-                    // Call RCA 1802 program at [val]
-                    default:    
-                        break;
-                }
-                break;
-
-            // Jump to [val]
-            case 0x1:
-                this.pc = val;
-                break;
-
-            // Call subroutine at [val]
-            case 0x2:
-                this.stack[++this.sp] = this.pc;
-                this.pc = val;
-                break;
-
-            // 6XNN -> Vx = NN
-            case 0x6:
-                n1 = val & 0xF00 >> 8;
-                n2 = val & 0x0FF;
-                this.v[n1] = n2;
-                break;
-
-            // 7XNN -> Vx += NN
-            case 0x7:
-                n1 = val & 0xF00 >> 8;
-                n2 = val & 0x0FF;
-                this.v[n1] += n2;
-                break;
-        }
     }
 
     /**
