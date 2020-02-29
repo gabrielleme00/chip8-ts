@@ -1,20 +1,28 @@
+import Interpreter from './interpreter';
+
 export default class Chip8 {
     // RAM
-    private ram: Int8Array = new Int8Array(4096);
+    ram: Int8Array = new Int8Array(4096);
     // Stack array
-    private stack: Int16Array = new Int16Array(16);
+    stack: Int16Array = new Int16Array(16);
     // GP Registers (V0 - VF)
-    private v: Int8Array = new Int8Array(16);
+    v: Int8Array = new Int8Array(16);
     // Address register (16-bit)
-    private i: number = 0;
+    i: number = 0;
     // Delay Timer (8-bit)
-    private dt: number = 0;
+    dt: number = 0;
     // Sound Timer (8-bit)
-    private st: number = 0;
+    st: number = 0;
     // Program Counter (16-bit)
-    private pc: number = 0x200;
+    pc: number = 0x200;
     // Stack pointer (8-bit)
-    private sp: number = 0;
+    sp: number = 0;
+    // Opcode decoder
+    interpreter: Interpreter;
+
+    constructor() {
+        this.interpreter = new Interpreter(this);
+    }
 
     /**
      * Emulates a CPU cycle
@@ -23,9 +31,8 @@ export default class Chip8 {
         // Read 2-byte opcode from memory
         const opcode = this.getOpcode();
 
-        // Decode and advance Program Counter
+        // Decode current opcode
         this.decode(opcode);
-        this.pc += 2;
 
         // TODO: Update timers
     }
@@ -35,8 +42,6 @@ export default class Chip8 {
      * @param opcode 2-byte operation
      */
     private decode(opcode: number): void {
-        // TODO: Make a separate Decoder class
-
         // Opcode bitfields
         const u   = (opcode >> 12) & 0xF;
         const x   = (opcode >>  8) & 0xF;
@@ -44,6 +49,27 @@ export default class Chip8 {
         const p   = (opcode >>  0) & 0xF;
         const kk  = (opcode >>  0) & 0xFF;
         const nnn = (opcode >>  0) & 0xFFF;
+
+        const decoder = this.interpreter;
+
+        switch (u) {
+            case 0x0:
+                switch (nnn) {
+                    case 0x0E0:
+                        decoder.cls();
+                        break;
+                    case 0x0EE:
+                        decoder.ret();
+                        break;
+                }
+                break;
+            case 0x1:
+                decoder.jmp(nnn);
+                break;
+            case 0x2:
+                decoder.call(nnn);
+                break;
+        }
     }
 
     /**
