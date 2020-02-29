@@ -1,8 +1,13 @@
+import Decoder from './decoder';
 import Interpreter from './interpreter';
+import Display from './display';
 
 export default class Chip8 {
     // RAM
     ram: Int8Array = new Int8Array(4096);
+    // Display
+    display: Display = new Display();
+
     // Stack array
     stack: Int16Array = new Int16Array(16);
     // GP Registers (V0 - VF)
@@ -18,11 +23,7 @@ export default class Chip8 {
     // Stack pointer (8-bit)
     sp: number = 0;
     // Opcode decoder
-    interpreter: Interpreter;
-
-    constructor() {
-        this.interpreter = new Interpreter(this);
-    }
+    decoder: Decoder = new Interpreter(this);
 
     /**
      * Emulates a CPU cycle
@@ -50,7 +51,7 @@ export default class Chip8 {
         const kk  = (opcode >>  0) & 0xFF;
         const nnn = (opcode >>  0) & 0xFFF;
 
-        const decoder = this.interpreter;
+        const decoder = this.decoder;
 
         switch (u) {
             case 0x0:

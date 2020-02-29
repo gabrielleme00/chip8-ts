@@ -101,13 +101,15 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    shr(reg1: number): void {
-
+    shr(x: number): void {
+        this.vm.v[0xF] = (this.vm.v[0xF] & 0x1) === 1 ? 1 : 0;
+        this.vm.v[x] = this.vm.v[x] >> 1;
         this.vm.pc += 2;
     }
 
-    shl(reg1: number): void {
-
+    shl(x: number): void {
+        this.vm.v[0xF] = (this.vm.v[0xF] & 0x80) === 1 ? 1 : 0;
+        this.vm.v[x] = this.vm.v[x] << 1;
         this.vm.pc += 2;
     }
 
@@ -117,10 +119,12 @@ export default class Interpreter implements Decoder {
     }
 
     jmpv0(addr: number): void {
-        this.vm.pc += 2;
+        this.vm.pc = addr + this.vm.v[0];
     }
 
-    rand(reg: number, val: number): void {
+    rand(x: number, val: number): void {
+        const result = Math.floor(Math.random() * 0x100) & val;
+        this.vm.v[x] = result;
         this.vm.pc += 2;
     }
 
@@ -140,35 +144,49 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    getdelay(reg: number): void {
+    getdelay(x: number): void {
+        this.vm.v[x] = this.vm.dt;
         this.vm.pc += 2;
     }
 
-    setdelay(reg: number): void {
+    setdelay(x: number): void {
+        this.vm.dt = this.vm.v[x];
         this.vm.pc += 2;
     }
 
-    setsound(reg: number): void {
+    setsound(x: number): void {
+        this.vm.st = this.vm.v[x];
         this.vm.pc += 2;
     }
 
-    addi(reg: number): void {
+    addi(x: number): void {
+        this.vm.i = (this.vm.i + this.vm.v[x]) & 0xFFFF;
         this.vm.pc += 2;
     }
 
-    spritei(reg: number): void {
+    spritei(x: number): void {
         this.vm.pc += 2;
     }
 
-    bcd(reg: number): void {
+    bcd(x: number): void {
         this.vm.pc += 2;
     }
 
-    push(reg: number): void {
+    push(x: number): void {
+        for (let offset = 0; offset <= x; offset++) {
+            const addr = this.vm.i + offset; 
+            const val = this.vm.v[offset] & 0xFF;
+            this.vm.ram[addr] = val;
+        }
         this.vm.pc += 2;
     }
 
-    pop(reg: number): void {
+    pop(x: number): void {
+        for (let offset = 0; offset <= x; offset++) {
+            const addr = this.vm.i + offset; 
+            const val = this.vm.ram[addr] & 0xFF;
+            this.vm.v[offset] = val;
+        }
         this.vm.pc += 2;
     }
     
