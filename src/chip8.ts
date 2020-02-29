@@ -6,7 +6,7 @@ export default class Chip8 {
     // RAM
     ram: Int8Array = new Int8Array(4096);
     // Display
-    display: Display = new Display();
+    display: Display = new Display(64, 32);
 
     // Stack array
     stack: Int16Array = new Int16Array(16);
@@ -69,6 +69,105 @@ export default class Chip8 {
                 break;
             case 0x2:
                 decoder.call(nnn);
+                break;
+            case 0x3:
+                decoder.seq(x, kk);
+                break;
+            case 0x4:
+                decoder.sne(x, kk);
+                break;
+            case 0x5:
+                decoder.seqr(x, y);
+                break;
+            case 0x6:
+                decoder.set(x, kk);
+                break;
+            case 0x7:
+                decoder.add(x, kk);
+                break;
+            case 0x8:
+                switch (p) {
+                    case 0x1:
+                        decoder.or(x, y);
+                        break;
+                    case 0x2:
+                        decoder.and(x, y);
+                        break;
+                    case 0x3:
+                        decoder.xor(x, y);
+                        break;
+                    case 0x4:
+                        decoder.addr(x, y);
+                        break;
+                    case 0x5:
+                        decoder.subr(x, y);
+                        break;
+                    case 0x6:
+                        decoder.shr(x);
+                        break;
+                    case 0x7:
+                        decoder.subn(x, y);
+                        break;
+                    case 0xE:
+                        decoder.shl(x);
+                        break;
+                }
+                break;
+            case 0x9:
+                decoder.sner(x, y);
+                break;
+            case 0xA:
+                decoder.seti(nnn);
+                break;
+            case 0xB:
+                decoder.jmpv0(nnn);
+                break;
+            case 0xC:
+                decoder.rand(x, kk);
+                break;
+            case 0xD:
+                decoder.draw(x, y, p);
+                break;
+            case 0xE:
+                switch (kk) {
+                    case 0x9E:
+                        decoder.skp(x);
+                        break;
+                    case 0xA1:
+                        decoder.sknp(x);
+                        break;
+                }
+                break;
+            case 0xF:
+                switch (kk) {
+                    case 0x07:
+                        decoder.getdelay(x);
+                        break;
+                    case 0x0A:
+                        decoder.waitkey(x);
+                        break;
+                    case 0x15:
+                        decoder.setdelay(x);
+                        break;
+                    case 0x18:
+                        decoder.setsound(x);
+                        break;
+                    case 0x1E:
+                        decoder.addi(x);
+                        break;
+                    case 0x29:
+                        decoder.spritei(x);
+                        break;
+                    case 0x33:
+                        decoder.bcd(x);
+                        break;
+                    case 0x55:
+                        decoder.push(x);
+                        break;
+                    case 0x65:
+                        decoder.pop(x);
+                        break;
+                }
                 break;
         }
     }
