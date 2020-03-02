@@ -17,6 +17,7 @@ export default class Display {
     constructor(
         chip8: Chip8,
         canvasId: string,
+        pixelSize: number = 16,
         width: number = 64,
         height: number = 32
     ) {
@@ -29,8 +30,8 @@ export default class Display {
         const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         const context = canvas.getContext('2d');
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width * pixelSize;
+        canvas.height = height * pixelSize;
         canvas.style.border = '1px solid black';
 
         this.canvas = canvas;
