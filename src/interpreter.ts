@@ -8,8 +8,8 @@ export default class Interpreter implements Decoder {
         this.vm = vm;
     }
 
-    cls(): void {}
-    
+    cls(): void { }
+
     ret(): void {
         this.vm.pc = this.vm.stack[this.vm.sp--] & 0xFFFF;
     }
@@ -17,7 +17,7 @@ export default class Interpreter implements Decoder {
     jmp(addr: number): void {
         this.vm.pc = addr & 0xFFFF;
     }
-    
+
     call(addr: number): void {
         this.vm.sp++;
         this.vm.stack[this.vm.pc];
@@ -52,12 +52,12 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    set (reg: number, val: number): void {
+    set(reg: number, val: number): void {
         this.vm.v[reg] = val & 0xFF;
         this.vm.pc += 2;
     }
 
-    add (reg: number, val: number): void {
+    add(reg: number, val: number): void {
         this.vm.v[reg] = (this.vm.v[reg] + (val & 0xFF)) & 0xFF;
         this.vm.pc += 2;
     }
@@ -67,7 +67,7 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    or (x: number, y: number): void {
+    or(x: number, y: number): void {
         this.vm.v[x] = this.vm.v[x] | this.vm.v[y];
         this.vm.pc += 2;
     }
@@ -113,7 +113,7 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    seti (addr: number): void {
+    seti(addr: number): void {
         this.vm.i = addr & 0xFFFF;
         this.vm.pc += 2;
     }
@@ -128,11 +128,34 @@ export default class Interpreter implements Decoder {
         this.vm.pc += 2;
     }
 
-    draw(reg1: number, reg2: number, val: number): void {
+    draw(x: number, y: number, height: number): void {
+        this.vm.v[0xF] = 0;
+
+        // For each row of the sprite
+        for (let row = 0; row < height; row++) {
+            const pixel = this.vm.ram[this.vm.i + row];
+
+            // Check every pixel
+            for (let col = 0; col < 8; col++) {
+                if ((pixel & (0x80) >> col) !== 0) {
+                    const offset = (x + col + ((y + row) * 64));
+
+                    // Check collision
+                    if (this.vm.display.gfx[offset] === 1) {
+                        this.vm.v[0xF] = 1;
+                    }
+
+                    // Update pixel
+                    this.vm.display.gfx[offset] ^= 1;
+                }
+            }
+        }
+
+        this.vm.drawFlag = true;
         this.vm.pc += 2;
     }
 
-    skp (reg: number): void {
+    skp(reg: number): void {
         this.vm.pc += 2;
     }
 
@@ -174,7 +197,7 @@ export default class Interpreter implements Decoder {
 
     push(x: number): void {
         for (let offset = 0; offset <= x; offset++) {
-            const addr = this.vm.i + offset; 
+            const addr = this.vm.i + offset;
             const val = this.vm.v[offset] & 0xFF;
             this.vm.ram[addr] = val;
         }
@@ -183,11 +206,11 @@ export default class Interpreter implements Decoder {
 
     pop(x: number): void {
         for (let offset = 0; offset <= x; offset++) {
-            const addr = this.vm.i + offset; 
+            const addr = this.vm.i + offset;
             const val = this.vm.ram[addr] & 0xFF;
             this.vm.v[offset] = val;
         }
         this.vm.pc += 2;
     }
-    
+
 }

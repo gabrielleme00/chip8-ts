@@ -6,12 +6,14 @@ export default class Chip8 {
     // RAM
     ram: Int8Array = new Int8Array(4096);
     // Display
-    display: Display = new Display(64, 32);
+    display: Display;
+    // Keypad (0x0 - 0xF)
+    key: Array<boolean> = new Array<boolean>(16);
 
     // Stack array
-    stack: Int16Array = new Int16Array(16);
+    stack: Uint16Array = new Uint16Array(16);
     // GP Registers (V0 - VF)
-    v: Int8Array = new Int8Array(16);
+    v: Uint8Array = new Uint8Array(16);
     // Address register (16-bit)
     i: number = 0;
     // Delay Timer (8-bit)
@@ -24,18 +26,91 @@ export default class Chip8 {
     sp: number = 0;
     // Opcode decoder
     decoder: Decoder = new Interpreter(this);
+    // Draw flag -- oh, really?
+    drawFlag: boolean = false;
+
+    /**
+     * Chip-8 emulator/Interpreter
+     * @param canvasId Canvas used as screen
+     */
+    constructor(canvasId: string) {
+        this.display = new Display(this, canvasId);
+
+        this.loadFontset();
+    }
 
     /**
      * Emulates a CPU cycle
      */
-    public cycle() {
+    public cycle(): void {
         // Read 2-byte opcode from memory
         const opcode = this.getOpcode();
 
-        // Decode current opcode
+        this.resetFlags();
         this.decode(opcode);
+        this.updateTimers();
+    }
 
-        // TODO: Update timers
+    /**
+     * Draws sprites to the screen (canvas)
+     */
+    public draw(): void {
+        this.display.draw();
+    }
+
+    /**
+     * Stores key states (press/release)
+     */
+    public setKeys(): void {
+
+    }
+
+    /**
+     * Loads a program
+     */
+    public load(): void {
+
+    }
+
+    /**
+     * Returns the drawFlag state
+     */
+    public getDrawFlag(): boolean {
+        return this.drawFlag;
+    }
+
+    /**
+     * Loads fontset into RAM
+     */
+    private loadFontset(): void {
+        const fontset = this.display.getFontset();
+
+        for (let i = 0; i < 80; i++) {
+            this.ram[i] = fontset[i];
+        }
+    }
+
+    /**
+     * Resets register flags
+     */
+    private resetFlags(): void {
+        this.drawFlag = false;
+    }
+
+    /**
+     * Decrements timer registers
+     */
+    private updateTimers(): void {
+        // Delay timer
+        if (this.dt > 0) this.dt--;
+
+        // Sound timer
+        if (this.st > 0) {
+            if (this.st === 1) {
+                // BEEP
+            }
+            this.dt--;
+        }
     }
 
     /**
@@ -44,12 +119,12 @@ export default class Chip8 {
      */
     private decode(opcode: number): void {
         // Opcode bitfields
-        const u   = (opcode >> 12) & 0xF;
-        const x   = (opcode >>  8) & 0xF;
-        const y   = (opcode >>  4) & 0xF;
-        const p   = (opcode >>  0) & 0xF;
-        const kk  = (opcode >>  0) & 0xFF;
-        const nnn = (opcode >>  0) & 0xFFF;
+        const u = (opcode >> 12) & 0xF;
+        const x = (opcode >> 8) & 0xF;
+        const y = (opcode >> 4) & 0xF;
+        const p = (opcode >> 0) & 0xF;
+        const kk = (opcode >> 0) & 0xFF;
+        const nnn = (opcode >> 0) & 0xFFF;
 
         const decoder = this.decoder;
 
