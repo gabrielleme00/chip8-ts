@@ -17,6 +17,9 @@ export default class Display {
     // Display buffer
     gfx: Uint8Array;
 
+    // Foreground color
+    fgColor: string = '#2c2137';
+
     constructor(
         chip8: Chip8,
         canvasId: string,
@@ -37,7 +40,8 @@ export default class Display {
 
         canvas.width = width * pixelSize;
         canvas.height = height * pixelSize;
-        canvas.style.border = '1px solid black';
+
+        context.fillStyle = this.fgColor;
 
         this.canvas = canvas;
         this.ctx = context;
@@ -45,6 +49,8 @@ export default class Display {
 
     public draw(): void {
         const pixelSize = this.pixelSize;
+
+        this.clearCanvas();
 
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
@@ -73,5 +79,9 @@ export default class Display {
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         ];
+    }
+
+    private clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
