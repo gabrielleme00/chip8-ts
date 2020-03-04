@@ -11,6 +11,9 @@ export default class Display {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
+    // Canvas pixel size
+    pixelSize: number;
+
     // Display buffer
     gfx: Uint8Array;
 
@@ -25,7 +28,9 @@ export default class Display {
 
         this.width = width;
         this.height = height;
-        this.gfx = new Uint8Array(width * height)
+
+        this.gfx = new Uint8Array(width * height);
+        this.pixelSize = pixelSize;
 
         const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         const context = canvas.getContext('2d');
@@ -39,7 +44,14 @@ export default class Display {
     }
 
     public draw(): void {
+        const pixelSize = this.pixelSize;
 
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.gfx[x * y])
+                    this.ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            }
+        }
     }
 
     public getFontset(): Array<number> {

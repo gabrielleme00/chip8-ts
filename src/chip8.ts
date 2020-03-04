@@ -26,7 +26,7 @@ export default class Chip8 {
     sp: number = 0;
     // Opcode decoder
     decoder: Decoder = new Interpreter(this);
-    // Draw flag -- oh, really?
+    // Should update screen?
     drawFlag: boolean = false;
 
     /**
