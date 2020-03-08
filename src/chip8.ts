@@ -4,7 +4,7 @@ import Display from './display';
 
 export default class Chip8 {
     // RAM
-    ram: Int8Array = new Int8Array(4096);
+    ram: Uint8Array = new Uint8Array(4096);
     // Display
     display: Display;
     // Keypad (0x0 - 0xF)
@@ -66,10 +66,34 @@ export default class Chip8 {
     }
 
     /**
-     * Loads a program
+     * Loads a program into memory
      */
-    public load(): void {
+    public load(romName: string): Promise<void> {
+        const romFolder: string = './roms/';
+        const romPath: string = romFolder + romName;
 
+        return fetch(romPath)
+            .then(res => res.blob())
+            .then(blob => blob.arrayBuffer())
+            .then(arrayBuffer => {
+                const bytes = new Uint8Array(arrayBuffer);
+                console.log(bytes);
+
+                bytes.forEach((byte, i) => {
+                    this.ram[this.pc + i] = byte;
+                });
+            });
+    }
+
+    /**
+     * Logs the VM's current state
+     */
+    public logState(): void {
+        const intToHex = (int: number) => parseInt(int.toString(), 16);
+
+        const pc = intToHex(this.pc);
+        const byte = intToHex(this.ram[this.pc]);
+        console.log('0x' + pc + ' => 0x' + byte);
     }
 
     /**
@@ -137,6 +161,8 @@ export default class Chip8 {
                     case 0x0EE:
                         decoder.ret();
                         break;
+                    default:
+                        throw "Unknown opcode: " + parseInt();
                 }
                 break;
             case 0x1:

@@ -10,3 +10,7 @@ canvas#screen {
 
     background-color: #a96868;
 }
+
+#fileDrop {
+    width: 100%;
+}
