@@ -68,21 +68,21 @@ export default class Chip8 {
     /**
      * Loads a program into memory
      */
-    public load(romName: string): Promise<void> {
+    public async load(romName: string): Promise<void> {
         const romFolder: string = './roms/';
         const romPath: string = romFolder + romName;
 
-        return fetch(romPath)
-            .then(res => res.blob())
-            .then(blob => blob.arrayBuffer())
-            .then(arrayBuffer => {
-                const bytes = new Uint8Array(arrayBuffer);
-                console.log(bytes);
+        const res = await fetch(romPath);
+        const blob = await res.blob();
+        const arrayBuffer = blob.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
 
-                bytes.forEach((byte, i) => {
-                    this.ram[this.pc + i] = byte;
-                });
-            });
+        console.log(bytes);
+
+        // Load into memory
+        bytes.forEach((byte, i) => {
+            this.ram[this.pc + i] = byte;
+        });
     }
 
     /**
