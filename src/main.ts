@@ -6,7 +6,7 @@ const cycleTime: number = 1000 / 60;
 vm.load("PONG").then(() => {
     setInterval(() => {
         vm.cycle();
-        vm.logSate();
+        vm.logState();
         vm.draw();
         vm.setKeys();
     }, cycleTime);
