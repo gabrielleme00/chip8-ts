@@ -74,13 +74,13 @@ export default class Chip8 {
 
         const res = await fetch(romPath);
         const blob = await res.blob();
-        const arrayBuffer = blob.arrayBuffer();
+        const arrayBuffer = await blob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
 
         console.log(bytes);
 
         // Load into memory
-        bytes.forEach((byte, i) => {
+        bytes.forEach((byte: number, i: number) => {
             this.ram[this.pc + i] = byte;
         });
     }
@@ -162,7 +162,7 @@ export default class Chip8 {
                         decoder.ret();
                         break;
                     default:
-                        throw "Unknown opcode: " + parseInt();
+                        throw "Unknown opcode: 0x" + opcode.toString(16).padStart(4, '0');
                 }
                 break;
             case 0x1:
